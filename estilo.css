@@ -1,0 +1,215 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    margin: 0;
+    padding: 20px;
+}
+
+h2 {
+    color: #6a368b;
+}
+
+form {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+form label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333333;
+}
+
+form input[type="text"],
+form input[type="time"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #cccccc;
+    margin-bottom: 10px;
+}
+
+form input[type="submit"] {
+    background-color: #6a368b;
+    color: #ffffff;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#error-message {
+    color: red;
+    margin-bottom: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+table th,
+table td {
+    padding: 12px;
+    border-bottom: 1px solid #cccccc;
+    text-align: left;
+}
+
+table th {
+    background-color: #6a368b;
+    color: #ffffff;
+}
+
+table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    margin: 0;
+    padding: 20px;
+}
+
+h2 {
+    color: #6a368b;
+}
+
+form {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+form label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333333;
+}
+
+form input[type="text"],
+form input[type="time"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #cccccc;
+    margin-bottom: 10px;
+}
+
+form input[type="submit"] {
+    background-color: #6a368b;
+    color: #ffffff;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#error-message {
+    color: red;
+    margin-bottom: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+table th,
+table td {
+    padding: 12px;
+    border-bottom: 1px solid #cccccc;
+    text-align: left;
+}
+
+table th {
+    
+    color: #ffffff;
+}
+
+table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+
+/* Estilo para o container customizado */
+.custom-select {
+    position: relative;
+    width: 100%;
+}
+
+/* Estilo para o texto de seleção ou placeholder */
+.custom-select .placeholder {
+    display: block;
+    padding: 10px;
+    background-color: #f2f2f2;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    color: #333;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+
+/* Estilo para a lista de opções */
+.custom-select .options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+    z-index: 1;
+    display: none;
+}
+
+/* Estilo para as opções */
+.custom-select .option {
+    padding: 10px;
+    cursor: pointer;
+    color: #333;
+    transition: background-color 0.3s ease;
+}
+
+/* Estilo para realçar a opção selecionada */
+.custom-select .option:hover {
+    background-color: #f2f2f2;
+}
+
+/* Estilo para destacar o select quando aberto */
+.custom-select.open .placeholder {
+    border-radius: 5px 5px 0 0;
+    border: 1px solid #ccc;
+    border-bottom: none;
+    background-color: #fff;
+    transition: background-color 0.3s ease;
+}
+
+/* Estilo para destacar a opção selecionada */
+.custom-select.open .options {
+    display: block;
+    border: 1px solid #ccc;
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+}
+
+/* Estilo para remover o ponto à esquerda das opções */
+.custom-select .options li::before {
+    content: none;
+}
+
+
