@@ -12,29 +12,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
     const professorTable = document.getElementById('professor-table-body');
     const gradeCurricularTable = document.getElementById('grade-curricular');
 
-    // Variável para armazenar os dias selecionados
-    const diasAula = [];
-
-    // Adicionar um evento de clique para abrir/fechar as opções
-    diasSemanaContainer.addEventListener('click', () => {
-        diasSemanaContainer.classList.toggle('open');
-    });
-
-    // Adicionar um evento de clique para selecionar/deselecionar opções
-    diasSemanaOptions.forEach(option => {
-        option.addEventListener('click', () => {
-            if (diasAula.includes(option.textContent)) {
-                const index = diasAula.indexOf(option.textContent);
-                diasAula.splice(index, 1);
-            } else {
-                diasAula.push(option.textContent);
-            }
-            diasSemanaPlaceholder.textContent = diasAula.length > 0 ? diasAula.join(', ') : 'Selecione os dias';
-        });
-    });
-
-    // Carregar professores do armazenamento local, se disponível
+    // Variável para armazenar os professores
     let professores = JSON.parse(localStorage.getItem('professores')) || [];
+
+    // Variável para gerar IDs únicos para os professores
+    let professorId = 1;
 
     // Estrutura de dados para a grade curricular
     const gradeCurricular = {
@@ -44,6 +26,39 @@ window.addEventListener('DOMContentLoaded', (event) => {
         'Quinta-feira': {},
         'Sexta-feira': {},
     };
+
+    // Função para carregar professores do localStorage
+    function carregarProfessoresDoLocalStorage() {
+        const professoresLocalStorage = localStorage.getItem('professores');
+        if (professoresLocalStorage) {
+            professores = JSON.parse(professoresLocalStorage);
+            atualizarTabela();
+        }
+    }
+   
+    // Função para limpar a grade curricular
+    function limparGradeCurricular() {
+        for (const diaSemana in gradeCurricular) {
+            for (const horaInicio in gradeCurricular[diaSemana]) {
+                gradeCurricular[diaSemana][horaInicio] = [];
+            }
+        }
+    }
+
+    
+    // Adicionar um evento de clique para abrir/fechar as opções
+    diasSemanaContainer.addEventListener('click', () => {
+        diasSemanaContainer.classList.toggle('open');
+    });
+
+    // Adicionar um evento de clique para selecionar/deselecionar opções
+    diasSemanaOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            option.classList.toggle('selected');
+            const selectedDays = Array.from(diasSemanaOptions).filter(option => option.classList.contains('selected')).map(option => option.textContent);
+            diasSemanaPlaceholder.textContent = selectedDays.length > 0 ? selectedDays.join(', ') : 'Selecione os dias';
+        });
+    });
 
     // Função para salvar professores no armazenamento local
     function salvarProfessores() {
@@ -61,7 +76,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             const diasAulaCell = document.createElement('td');
             const inicioCell = document.createElement('td');
             const fimCell = document.createElement('td');
-            const excluirCell = document.createElement('td'); // Célula para o botão de exclusão
+            const acoesCell = document.createElement('td'); // Coluna para botões de Atualizar e Excluir
 
             nomeCell.textContent = professor.nome;
             disciplinaCell.textContent = professor.disciplina;
@@ -72,13 +87,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
             const excluirButton = document.createElement('button');
             excluirButton.textContent = 'Excluir';
-            excluirButton.classList.add('btn', 'btn-danger', 'btn-sm');
-
             excluirButton.addEventListener('click', () => {
-                excluirProfessor(professor);
+                excluirProfessor(professor.id);
             });
 
-            excluirCell.appendChild(excluirButton);
+            acoesCell.appendChild(excluirButton);
 
             row.appendChild(nomeCell);
             row.appendChild(disciplinaCell);
@@ -86,22 +99,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
             row.appendChild(diasAulaCell);
             row.appendChild(inicioCell);
             row.appendChild(fimCell);
-            row.appendChild(excluirCell);
+            row.appendChild(acoesCell); // Adicionar a coluna de ações à linha
 
             professorTable.appendChild(row);
-
-            // Adiciona as aulas à grade curricular
-            for (const diaAula of professor.diasAula) {
-                if (!gradeCurricular[diaAula][professor.inicio]) {
-                    gradeCurricular[diaAula][professor.inicio] = {
-                        nome: professor.nome,
-                        disciplina: professor.disciplina,
-                        sala: professor.sala,
-                        inicio: professor.inicio,
-                        fim: professor.fim,
-                    };
-                }
-            }
         }
 
         // Atualiza a grade curricular
@@ -120,14 +120,33 @@ window.addEventListener('DOMContentLoaded', (event) => {
             diaSemanaCell.textContent = diaSemana;
             row.appendChild(diaSemanaCell);
 
-            for (const hora in gradeCurricular[diaSemana]) {
-                const aula = gradeCurricular[diaSemana][hora];
+            for (const horaInicio in gradeCurricular[diaSemana]) {
+                const aulas = gradeCurricular[diaSemana][horaInicio];
                 const cell = document.createElement('td');
-                cell.textContent = `Aula: ${aula.nome}, Disciplina: ${aula.disciplina}, Sala: ${aula.sala}, Inicio: ${aula.inicio}, Termino: ${aula.fim}`;
+                const aulaText = aulas.map(aula => `Aula: ${aula.nome}, Disciplina: ${aula.disciplina}, Sala: ${aula.sala}, Inicio: ${aula.inicio}, Termino: ${aula.fim}`).join('<br>');
+                cell.innerHTML = aulaText;
                 row.appendChild(cell);
             }
 
             gradeCurricularTable.appendChild(row);
+        }
+    }
+
+    // Função para excluir um professor
+    function excluirProfessor(professorId) {
+        const index = professores.findIndex(professor => professor.id === professorId);
+        if (index !== -1) {
+            const professor = professores[index];
+            professores.splice(index, 1);
+            salvarProfessores();
+            atualizarTabela();
+            // Limpar as aulas da grade curricular quando um professor é excluído
+            for (const diaAula of professor.diasAula) {
+                for (const horaInicio in gradeCurricular[diaAula]) {
+                    gradeCurricular[diaAula][horaInicio] = gradeCurricular[diaAula][horaInicio].filter(aula => aula.id !== professor.id);
+                }
+            }
+            atualizarGradeCurricular(); // Atualiza a grade curricular após a exclusão
         }
     }
 
@@ -138,6 +157,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
         const sala = salaInput.value.trim();
         const inicio = inicioInput.value.trim();
         const fim = fimInput.value.trim();
+        const diasAula = Array.from(diasSemanaOptions).filter(option => option.classList.contains('selected')).map(option => option.textContent);
 
         if (nome === '' || disciplina === '' || sala === '' || diasAula.length === 0 || inicio === '' || fim === '') {
             errorMessage.textContent = 'Por favor, preencha todos os campos.';
@@ -161,13 +181,16 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
         errorMessage.textContent = '';
         adicionarProfessor(nome, disciplina, sala, diasAula, inicio, fim);
-        atualizarTabela(); // Atualizar a tabela após adicionar um novo professor
-        salvarProfessores(); // Salvar professores no armazenamento local
+        atualizarTabela();
+        salvarProfessores();
         professorForm.reset();
+        diasSemanaPlaceholder.textContent = 'Selecione os dias';
+        diasSemanaOptions.forEach(option => option.classList.remove('selected')); // Limpa a seleção dos dias
     });
 
     function adicionarProfessor(nome, disciplina, sala, diasAula, inicio, fim) {
         const professor = {
+            id: professorId++,
             nome: nome,
             disciplina: disciplina,
             sala: sala,
@@ -176,15 +199,34 @@ window.addEventListener('DOMContentLoaded', (event) => {
             fim: fim
         };
         professores.push(professor);
+        for (const diaAula of diasAula) {
+            adicionarAulaGradeCurricular(diaAula, inicio, professor);
+        }
+    }
+
+    function adicionarAulaGradeCurricular(diaAula, horaInicio, professor) {
+        if (!gradeCurricular[diaAula][horaInicio]) {
+            gradeCurricular[diaAula][horaInicio] = [];
+        }
+        gradeCurricular[diaAula][horaInicio].push({
+            id: professor.id,
+            nome: professor.nome,
+            disciplina: professor.disciplina,
+            sala: professor.sala,
+            inicio: professor.inicio,
+            fim: professor.fim
+        });
     }
 
     function verificarConflitoHorario(nome, sala, diasAula, inicio, fim) {
         for (const professor of professores) {
-            if ((professor.nome === nome || professor.sala === sala) &&
+            if (professor.id !== undefined && (
+                (professor.nome === nome || professor.sala === sala) &&
                 professor.diasAula.some(dia => diasAula.includes(dia)) &&
                 ((inicio >= professor.inicio && inicio < professor.fim) ||
                     (fim > professor.inicio && fim <= professor.fim) ||
-                    (inicio <= professor.inicio && fim >= professor.fim))) {
+                    (inicio <= professor.inicio && fim >= professor.fim))
+            )) {
                 return true;
             }
         }
@@ -196,42 +238,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
         return regex.test(horario);
     }
 
-    // Função para excluir um professor
-    function excluirProfessor(professor) {
-        const index = professores.indexOf(professor);
-        if (index !== -1) {
-            professores.splice(index, 1);
-            atualizarTabela(); // Atualizar a tabela após excluir um professor
-            salvarProfessores(); // Salvar professores atualizados no armazenamento local
-            excluirDaGradeCurricular(professor);
-        }
-    }
-
-    // Função para excluir um professor da grade curricular
-    function excluirDaGradeCurricular(professor) {
-        for (const diaAula of professor.diasAula) {
-            if (gradeCurricular[diaAula][professor.inicio]) {
-                delete gradeCurricular[diaAula][professor.inicio];
-            }
-        }
-        atualizarGradeCurricular(); // Atualizar a grade curricular após excluir um professor
-    }
-
-    // Exibir os professores iniciais
     atualizarTabela();
-
-    professorForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-        // Resto do seu código...
-
-        // Após adicionar o professor com sucesso, redefina o formulário
-        professorForm.reset();
-
-        // Além de redefinir o formulário, redefina o campo de seleção de dias da semana
-        diasSemanaPlaceholder.textContent = 'Selecione os dias';
-        diasAula.length = 0; // Limpa o array de diasAula
-    });
-
-    // Adicione o código para excluir professores da tabela e da grade curricular aqui
-    // ...
+    atualizarGradeCurricular();
+    carregarProfessoresDoLocalStorage();
+    limparGradeCurricular();
 });
