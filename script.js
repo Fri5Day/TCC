@@ -37,7 +37,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
     let professores = JSON.parse(localStorage.getItem('professores')) || [];
 
     // Estrutura de dados para a grade curricular
-    let gradeCurricular = {
+    const gradeCurricular = {
         'Segunda-feira': {},
         'Terça-feira': {},
         'Quarta-feira': {},
@@ -61,7 +61,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             const diasAulaCell = document.createElement('td');
             const inicioCell = document.createElement('td');
             const fimCell = document.createElement('td');
-            const excluirCell = document.createElement('td'); // Adicionando uma coluna de botões
+            const excluirCell = document.createElement('td'); // Célula para o botão de exclusão
 
             nomeCell.textContent = professor.nome;
             disciplinaCell.textContent = professor.disciplina;
@@ -70,12 +70,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
             inicioCell.textContent = professor.inicio;
             fimCell.textContent = professor.fim;
 
-            // Adicionar um botão "Excluir" para cada professor na tabela
             const excluirButton = document.createElement('button');
             excluirButton.textContent = 'Excluir';
             excluirButton.classList.add('btn', 'btn-danger', 'btn-sm');
+
             excluirButton.addEventListener('click', () => {
-                excluirProfessor(professor.nome); // Chame a função para excluir o professor
+                excluirProfessor(professor);
             });
 
             excluirCell.appendChild(excluirButton);
@@ -115,7 +115,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
         const diasSemana = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira'];
 
         for (const diaSemana of diasSemana) {
-            console.log("aaaaaaaa")
             const row = document.createElement('tr');
             const diaSemanaCell = document.createElement('td');
             diaSemanaCell.textContent = diaSemana;
@@ -130,27 +129,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
             gradeCurricularTable.appendChild(row);
         }
-    }
-
-    // Função para excluir um professor da lista
-    function excluirProfessor(nome) {
-        const index = professores.findIndex(p => p.nome === nome);
-        if (index !== -1) {
-            // Remova o professor da lista
-            professores.splice(index, 1);
-            salvarProfessores();
-            // Remova as aulas do professor da grade curricular
-            for (const dia in gradeCurricular) {
-                if (gradeCurricular[dia][nome]) {
-                    delete gradeCurricular[dia][nome];
-                }
-            }
-            // Atualize a tabela e a grade curricular
-
-            atualizarTabela();
-            atualizarGradeCurricular();
-        }
-
     }
 
     professorForm.addEventListener('submit', (event) => {
@@ -218,6 +196,27 @@ window.addEventListener('DOMContentLoaded', (event) => {
         return regex.test(horario);
     }
 
+    // Função para excluir um professor
+    function excluirProfessor(professor) {
+        const index = professores.indexOf(professor);
+        if (index !== -1) {
+            professores.splice(index, 1);
+            atualizarTabela(); // Atualizar a tabela após excluir um professor
+            salvarProfessores(); // Salvar professores atualizados no armazenamento local
+            excluirDaGradeCurricular(professor);
+        }
+    }
+
+    // Função para excluir um professor da grade curricular
+    function excluirDaGradeCurricular(professor) {
+        for (const diaAula of professor.diasAula) {
+            if (gradeCurricular[diaAula][professor.inicio]) {
+                delete gradeCurricular[diaAula][professor.inicio];
+            }
+        }
+        atualizarGradeCurricular(); // Atualizar a grade curricular após excluir um professor
+    }
+
     // Exibir os professores iniciais
     atualizarTabela();
 
@@ -233,4 +232,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
         diasAula.length = 0; // Limpa o array de diasAula
     });
 
+    // Adicione o código para excluir professores da tabela e da grade curricular aqui
+    // ...
 });
