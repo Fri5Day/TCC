@@ -19,7 +19,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
     let professorId = 1;
 
     // Estrutura de dados para a grade curricular
-    const gradeCurricular = {
+    let gradeCurricular = JSON.parse(localStorage.getItem('gradeCurricular')) || {
         'Segunda-feira': {},
         'Terça-feira': {},
         'Quarta-feira': {},
@@ -33,19 +33,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
         if (professoresLocalStorage) {
             professores = JSON.parse(professoresLocalStorage);
             atualizarTabela();
-        }
-    }
-   
-    // Função para limpar a grade curricular
-    function limparGradeCurricular() {
-        for (const diaSemana in gradeCurricular) {
-            for (const horaInicio in gradeCurricular[diaSemana]) {
-                gradeCurricular[diaSemana][horaInicio] = [];
-            }
+            atualizarGradeCurricular();
         }
     }
 
-    
     // Adicionar um evento de clique para abrir/fechar as opções
     diasSemanaContainer.addEventListener('click', () => {
         diasSemanaContainer.classList.toggle('open');
@@ -129,6 +120,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
 
             gradeCurricularTable.appendChild(row);
+            localStorage.setItem('gradeCurricular', JSON.stringify(gradeCurricular));
         }
     }
 
@@ -204,10 +196,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
     }
 
+    // Função para adicionar uma aula à grade curricular
     function adicionarAulaGradeCurricular(diaAula, horaInicio, professor) {
         if (!gradeCurricular[diaAula][horaInicio]) {
             gradeCurricular[diaAula][horaInicio] = [];
         }
+
         gradeCurricular[diaAula][horaInicio].push({
             id: professor.id,
             nome: professor.nome,
@@ -217,6 +211,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             fim: professor.fim
         });
     }
+
 
     function verificarConflitoHorario(nome, sala, diasAula, inicio, fim) {
         for (const professor of professores) {
@@ -241,5 +236,4 @@ window.addEventListener('DOMContentLoaded', (event) => {
     atualizarTabela();
     atualizarGradeCurricular();
     carregarProfessoresDoLocalStorage();
-    limparGradeCurricular();
 });
